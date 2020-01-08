@@ -22,31 +22,37 @@ var (
 	adbIn = adb + "input "
 )
 
+// RunCmd run the cmd
+func RunCmd(in string, l ...string) error {
+	var p string
+	if len(l) > 0 {
+		p = l[0]
+	}
+
+	out, e, err := cmd.Run(in)
+	if err != nil {
+		log.Println(p, out, e, err)
+	}
+
+	return err
+}
+
 // RunApp run the android app
 func RunApp(appPath string) error {
 	in := adb + "start am start -n " + appPath
-	out, e, err := cmd.Run(in)
-	log.Println("run app: ", out, e, err)
-
-	return err
+	return RunCmd(in, "run app: ")
 }
 
 // CloseApp close the android app
 func CloseApp(pkgName string) error {
 	in := adb + "am force-stop " + pkgName
-	out, e, err := cmd.Run(in)
-	log.Println("close app: ", out, e, err)
-
-	return err
+	return RunCmd(in, "close app: ")
 }
 
 // TypeStr input text with string
 func TypeStr(str string) error {
 	in := adbIn + "text " + str
-	out, e, err := cmd.Run(in)
-	log.Println("input text: ", out, e, err)
-
-	return err
+	return RunCmd(in, "input text: ")
 }
 
 // Tap tap the app
@@ -59,8 +65,26 @@ func Click(x, y int) error {
 	xy := strconv.Itoa(x) + " " + strconv.Itoa(y)
 	in := adbIn + "tap " + xy
 
-	out, e, err := cmd.Run(in)
-	log.Println("tap app: ", out, e, err)
+	return RunCmd(in, "tap app: ")
+}
 
-	return err
+// Scroll scroll the focus x, y to endX, endY
+func Scroll(x, y, endX, endY int) error {
+	str := strconv.Itoa(x) + " " + strconv.Itoa(y) + " " +
+		strconv.Itoa(endX) + " " + strconv.Itoa(endY)
+	in := adbIn + "swipe " + str
+
+	return RunCmd(in, "scroll: ")
+}
+
+// ScreenCap cap the screen
+func ScreenCap(path string) error {
+	in := adb + "/system/bin/screencap -p " + path
+	return RunCmd(in, "screen cap: ")
+}
+
+// SaveCapture save the capture to savePath (PC)
+func SaveCapture(path, savePath string) error {
+	in := adb + "pull /sdcard/" + path + " " + savePath
+	return RunCmd(in, "save capture: ")
 }
