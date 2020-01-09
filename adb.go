@@ -60,6 +60,22 @@ func Tap(x, y int) error {
 	return Click(x, y)
 }
 
+// TapKey tap the key code
+func TapKey(key string) error {
+	in := adbIn + "keyevent "
+	return RunCmd(in, "tap key code: ")
+}
+
+// TapHome tap the home key
+func TapHome() error {
+	return TapKey("3")
+}
+
+// TapBack tap the back key
+func TapBack() error {
+	return TapKey("4")
+}
+
 // Click tap the app
 func Click(x, y int) error {
 	xy := strconv.Itoa(x) + " " + strconv.Itoa(y)
