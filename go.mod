@@ -1,5 +1,5 @@
 module github.com/vcaesar/adb
 
-go 1.13
+go 1.17
 
-require github.com/go-vgo/gt/cmd v0.0.0-20200513154830-4bee3f5a4d6e
+require github.com/go-vgo/gt v0.31.0
