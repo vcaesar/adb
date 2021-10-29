@@ -18,8 +18,9 @@ import (
 )
 
 var (
-	adb   = "adb shell "
-	adbIn = adb + "input "
+	adb   = "adb "
+	adbs  = adb + "shell "
+	adbIn = adbs + "input "
 )
 
 // RunCmd run the cmd
@@ -39,14 +40,31 @@ func RunCmd(in string, l ...string) error {
 
 // RunApp run the android app
 func RunApp(appPath string) error {
-	in := adb + "start am start -n " + appPath
+	in := adbs + "start am start -n " + appPath
 	return RunCmd(in, "run app: ")
 }
 
 // CloseApp close the android app
 func CloseApp(pkgName string) error {
-	in := adb + "am force-stop " + pkgName
+	in := adbs + "am force-stop " + pkgName
 	return RunCmd(in, "close app: ")
+}
+
+// ActivityApp get the activity apps
+func ActivityApp() error {
+	in := adbs + "dumpsys activity activities"
+	return RunCmd(in, "activity app: ")
+}
+
+// ScreenSize get the device screen size
+func ScreenSize() (string, error) {
+	in := adbs + "wm size "
+	out, e, err := cmd.Run(in)
+	if err != nil {
+		log.Println("screen size: ", out, e, err)
+	}
+
+	return out, err
 }
 
 // TypeStr input text with string
@@ -93,14 +111,24 @@ func Scroll(x, y, endX, endY int) error {
 	return RunCmd(in, "scroll: ")
 }
 
+func Pull(str string) error {
+	in := adb + "pull " + str
+	return RunCmd(in, "abd pull: ")
+}
+
+func Push(str string) error {
+	in := adb + "push " + str
+	return RunCmd(in, "adb push: ")
+}
+
 // ScreenCap cap the screen
 func ScreenCap(path string) error {
-	in := adb + "/system/bin/screencap -p " + path
+	in := adbs + "/system/bin/screencap -p " + path
 	return RunCmd(in, "screen cap: ")
 }
 
 // SaveCapture save the capture to savePath (PC)
 func SaveCapture(path, savePath string) error {
-	in := adb + "pull /sdcard/" + path + " " + savePath
+	in := adbs + "pull /sdcard/" + path + " " + savePath
 	return RunCmd(in, "save capture: ")
 }
