@@ -38,6 +38,37 @@ func RunCmd(in string, l ...string) error {
 	return err
 }
 
+// Devices show the system all adb devices
+func Devices() error {
+	in := "adb devices"
+	return RunCmd(in, "abd devices: ")
+}
+
+func Install(app string) error {
+	in := adb + "install " + app
+	return RunCmd(in, "adb install: ")
+}
+
+func Uninstall(app string) error {
+	in := adb + "uninstall " + app
+	return RunCmd(in, "adb uninstall: ")
+}
+
+func Kill(pid string) error {
+	in := adbs + "kill " + pid
+	return RunCmd(in, "adb kill: ")
+}
+
+func Ps() (string, error) {
+	in := adbs + "ps"
+	out, e, err := cmd.Run(in)
+	if err != nil {
+		log.Println("ps: ", out, e, err)
+	}
+
+	return out, err
+}
+
 // RunApp run the android app
 func RunApp(appPath string) error {
 	in := adbs + "start am start -n " + appPath
