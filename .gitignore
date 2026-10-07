@@ -7,6 +7,11 @@ examples/examples
 
 vendor
 # vendor/github.com/vcaesar/tt
+.codg
+.v0
+v0
+test/tmp
+test/logs
 
 # Debug files
 *.dSYM/

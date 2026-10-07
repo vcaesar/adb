@@ -1,34 +1,63 @@
 name: Go
-on: [push]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
-    # name: build
     strategy:
+      fail-fast: false
       matrix:
-        go: [1.16.x, 1.17.x]
-        os: [macOS-latest, windows-latest, ubuntu-latest]
+        go: [1.26.x, 1.27.x]
+        os: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
-
+    defaults:
+      run:
+        # pwsh splits -coverprofile=coverage.out into "-coverprofile=coverage" ".out"
+        shell: bash
     steps:
-      # - name: Set up Go 1.13
+      - name: Check out code
+        uses: actions/checkout@v7
+
       - name: Set up Go ${{ matrix.go }}
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go }}
-        id: go
 
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v1
-
-      - name: Get dependencies
-        run: |
-          go get -v -t -d ./...
-          # if [ -f Gopkg.toml ]; then
-          #     curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-          #     dep ensure
-          # fi
+      - name: Verify go.mod is tidy
+        run: go mod tidy -diff
 
       - name: Build
-        run: go build -v .
+        run: go build -v ./...
+
+      - name: Vet
+        run: go vet ./...
+
       - name: Test
-        run: go test -v .
+        run: go test -v -race -count=1 -coverprofile=coverage.out ./...
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.14
+
+  vulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: golang/govulncheck-action@v1
+        with:
+          go-version-input: stable
