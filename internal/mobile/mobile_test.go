@@ -90,9 +90,13 @@ func TestToggle(t *testing.T) {
 	expect(t, f, "swipe 5 5 50 60 100")
 
 	f.calls = nil
-	r.Toggle("left", "down")
+	if err := r.Toggle("left", "down"); err != nil {
+		t.Fatal(err)
+	}
 	r.downAt = time.Now().Add(-time.Second)
-	r.Toggle("left", "up")
+	if err := r.Toggle("left", "up"); err != nil {
+		t.Fatal(err)
+	}
 	if len(f.calls) != 1 || f.calls[0][:18] != "swipe 50 60 50 60 " {
 		t.Fatalf("long press calls = %q", f.calls)
 	}
